@@ -1,4 +1,4 @@
-package com.github.xyzboom.konst.ksp
+package io.github.xyzboom.konst.ksp
 
 import kotlin.annotation.AnnotationTarget.*
 

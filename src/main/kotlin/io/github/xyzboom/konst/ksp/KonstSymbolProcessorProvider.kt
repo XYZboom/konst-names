@@ -1,4 +1,4 @@
-package com.github.xyzboom.konst.ksp
+package io.github.xyzboom.konst.ksp
 
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment

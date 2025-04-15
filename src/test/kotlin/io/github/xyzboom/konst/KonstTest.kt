@@ -1,6 +1,6 @@
-package com.github.xyzboom
+package io.github.xyzboom.konst
 
-import com.github.xyzboom.konst.ksp.Konst
+import io.github.xyzboom.konst.ksp.Konst
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 

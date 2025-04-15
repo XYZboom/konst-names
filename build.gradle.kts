@@ -4,7 +4,7 @@ plugins {
     `maven-publish`
 }
 
-group = "com.github.xyzboom"
+group = "io.github.xyzboom"
 version = "1.0-SNAPSHOT"
 
 repositories {
@@ -17,7 +17,7 @@ publishing {
     }
     publications {
         create<MavenPublication>("konst-names-source") {
-            groupId = "com.github.xyzboom"
+            groupId = "io.github.xyzboom"
             artifactId = "konst-names"
             version = "1.0-SNAPSHOT"
 
@@ -34,7 +34,7 @@ publishing {
 
 dependencies {
     implementation(libs.ksp)
-    ksp("com.github.xyzboom:konst-names:1.0-SNAPSHOT")
+    ksp("io.github.xyzboom:konst-names:1.0-SNAPSHOT")
     kspTest(rootProject)
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
