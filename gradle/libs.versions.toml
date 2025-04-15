@@ -1,6 +1,8 @@
 [versions]
 kotlin = "2.1.20"
 ksp = "2.1.20-1.0.32"
+dokka = "2.0.0"
+jreleaser = "1.17.0"
 
 [libraries]
 ksp = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
@@ -8,3 +10,5 @@ ksp = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+jreleaser = { id = "org.jreleaser", version.ref = "jreleaser" }
