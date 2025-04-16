@@ -20,8 +20,8 @@ plugins {
 }
 
 dependencies {
-    implementation("io.github.xyzboom:konst-names:0.1.0")
-    ksp("io.github.xyzboom:konst-names:0.1.0")
+    implementation("io.github.xyzboom:konst-names:0.1.2")
+    ksp("io.github.xyzboom:konst-names:0.1.2")
 }
 ```
 
