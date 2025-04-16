@@ -12,7 +12,7 @@ plugins {
 
 val myGroup = "io.github.xyzboom"
 val myId = "konst-names"
-val myVersion = "0.1.0"
+val myVersion = "0.1.1"
 group = myGroup
 version = myVersion
 
@@ -31,25 +31,33 @@ val javadocJar = tasks.register<Jar>("dokkaJavadocJar") {
     archiveClassifier.set("javadoc")
 }
 
-tasks.withType<JReleaserDeployTask> {
-    dependsOn(tasks.publish)
-}
+val localJReleaserName = "LocalForJReleaser"
+val mavenSnapshotName = "MavenSnapshot"
 
 publishing {
     repositories {
         maven {
-            name = "MavenCentral"
+            name = localJReleaserName
             url = uri(layout.buildDirectory.dir("staging-deploy"))
+        }
+        maven {
+            name = mavenSnapshotName
+            url = uri("https://central.sonatype.com/repository/maven-snapshots/")
+            credentials {
+                val userKey = "JRELEASER_MAVENCENTRAL_USERNAME"
+                val pwdKey = "JRELEASER_MAVENCENTRAL_PASSWORD"
+                username = System.getenv(userKey) ?: project.properties[userKey].toString()
+                password = System.getenv(pwdKey) ?: project.properties[pwdKey].toString()
+            }
         }
     }
     publications {
         create<MavenPublication>(myId) {
-            from(components["java"])
-
             groupId = myGroup
             artifactId = myId
             version = myVersion
 
+            from(components["java"])
             artifact(sourceJar) {
                 classifier = "sources"
             }
@@ -89,17 +97,16 @@ publishing {
 
 signing {
     useGpgCmd()
-    sign(publishing.publications)
+    sign(publishing.publications[myId])
 }
 
 jreleaser {
     deploy {
         maven {
             mavenCentral {
-                this.register("sonatype") {
-                    deploymentId = "fb6387b4-e812-4c5b-b03b-3bdb7ebfcb65"
+                register("sonatype") {
+                    snapshotSupported = myVersion.endsWith("-SNAPSHOT")
                     applyMavenCentralRules = true
-                    verifyPom = false
                     sign = false // already signed by signing plugin
                     active = Active.ALWAYS
                     url.set("https://central.sonatype.com/api/v1/publisher")
@@ -107,6 +114,29 @@ jreleaser {
                 }
             }
         }
+    }
+}
+
+val jDeploy = tasks.withType<JReleaserDeployTask> {
+    val taskName = "publish" +
+            myId.replaceFirstChar { it.uppercaseChar() } +
+            "PublicationTo${localJReleaserName}Repository"
+    dependsOn(tasks.named(taskName))
+}
+
+val cleanStagingDeploy = tasks.register("cleanStagingDeploy", Delete::class) {
+    delete(layout.buildDirectory.dir("staging-deploy"))
+}
+
+tasks.register("publishKonst") {
+    dependsOn(cleanStagingDeploy)
+    if (!myVersion.endsWith("-SNAPSHOT")) {
+        dependsOn(jDeploy)
+    } else {
+        val taskName = "publish" +
+                myId.replaceFirstChar { it.uppercaseChar() } +
+                "PublicationTo${mavenSnapshotName}Repository"
+        dependsOn(tasks.named(taskName))
     }
 }
 
