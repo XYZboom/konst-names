@@ -96,7 +96,13 @@ publishing {
 }
 
 signing {
-    useGpgCmd()
+    if (System.getenv("GITHUB_CI") != null) {
+        useGpgCmd()
+    } else {
+        val signingKey = System.getenv("JRELEASER_GPG_SECRET_KEY")
+        val signingPassword = System.getenv("JRELEASER_GPG_PASSPHRASE")
+        useInMemoryPgpKeys(signingKey, signingPassword)
+    }
     sign(publishing.publications[myId])
 }
 
