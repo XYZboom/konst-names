@@ -1,13 +1,11 @@
-import org.jreleaser.gradle.plugin.tasks.JReleaserDeployTask
-import org.jreleaser.model.Active
+import com.vanniktech.maven.publish.SonatypeHost
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.ksp)
     alias(libs.plugins.dokka)
-    alias(libs.plugins.jreleaser)
-    `maven-publish`
-    signing
+    alias(libs.plugins.vanniktech.maven.publish)
 }
 
 val myGroup = "io.github.xyzboom"
@@ -20,137 +18,101 @@ repositories {
     mavenCentral()
 }
 
-val sourceJar = tasks.register<Jar>("sourcesJar") {
-    from(sourceSets.main.get().allSource)
-    archiveClassifier.set("sources")
-}
-
-val javadocJar = tasks.register<Jar>("dokkaJavadocJar") {
-    dependsOn(tasks.dokkaJavadoc)
-    from(tasks.dokkaJavadoc.flatMap { it.outputDirectory })
-    archiveClassifier.set("javadoc")
-}
-
 val localJReleaserName = "LocalForJReleaser"
 val mavenSnapshotName = "MavenSnapshot"
 
-publishing {
-    repositories {
-        maven {
-            name = localJReleaserName
-            url = uri(layout.buildDirectory.dir("staging-deploy"))
-        }
-        maven {
-            name = mavenSnapshotName
-            url = uri("https://central.sonatype.com/repository/maven-snapshots/")
-            credentials {
-                val userKey = "JRELEASER_MAVENCENTRAL_USERNAME"
-                val pwdKey = "JRELEASER_MAVENCENTRAL_PASSWORD"
-                username = System.getenv(userKey) ?: project.properties[userKey].toString()
-                password = System.getenv(pwdKey) ?: project.properties[pwdKey].toString()
+mavenPublishing {
+    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+
+    signAllPublications()
+
+    coordinates(myGroup, myId, myVersion)
+
+    pom {
+        name.set(myId)
+        description.set("A KSP project for generating const names.")
+        url.set("https://github.com/XYZboom/konst-names")
+
+        licenses {
+            license {
+                name.set("Apache-2.0")
+                url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
             }
         }
-    }
-    publications {
-        create<MavenPublication>(myId) {
-            groupId = myGroup
-            artifactId = myId
-            version = myVersion
 
-            from(components["java"])
-            artifact(sourceJar) {
-                classifier = "sources"
-            }
-            artifact(javadocJar) {
-                classifier = "javadoc"
-            }
-
-            pom {
-                name.set(myId)
-                description.set("A KSP project for generating const names.")
-                url.set("https://github.com/XYZboom/konst-names")
-
-                licenses {
-                    license {
-                        name.set("Apache-2.0")
-                        url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
-                    }
-                }
-
-                developers {
-                    developer {
-                        id.set("XYZboom")
-                        name.set("Xiaotian Ma")
-                        email.set("xyzboom@qq.com")
-                    }
-                }
-
-                scm {
-                    connection = "scm:git:https://github.com/XYZboom/konst-names.git"
-                    developerConnection = "scm:git:https://github.com/XYZboom/konst-names.git"
-                    url = "https://github.com/XYZboom/konst-names.git"
-                }
+        developers {
+            developer {
+                id.set("XYZboom")
+                name.set("Xiaotian Ma")
+                email.set("xyzboom@qq.com")
             }
         }
-    }
-}
 
-signing {
-    useGpgCmd()
-    sign(publishing.publications[myId])
-}
-
-jreleaser {
-    deploy {
-        maven {
-            mavenCentral {
-                register("sonatype") {
-                    snapshotSupported = myVersion.endsWith("-SNAPSHOT")
-                    applyMavenCentralRules = true
-                    sign = false // already signed by signing plugin
-                    active = Active.ALWAYS
-                    url.set("https://central.sonatype.com/api/v1/publisher")
-                    stagingRepository(layout.buildDirectory.dir("staging-deploy").get().asFile.path)
-                }
-            }
+        scm {
+            connection = "scm:git:https://github.com/XYZboom/konst-names.git"
+            developerConnection = "scm:git:https://github.com/XYZboom/konst-names.git"
+            url = "https://github.com/XYZboom/konst-names.git"
         }
     }
-}
-
-val jDeploy = tasks.withType<JReleaserDeployTask> {
-    val taskName = "publish" +
-            myId.replaceFirstChar { it.uppercaseChar() } +
-            "PublicationTo${localJReleaserName}Repository"
-    dependsOn(tasks.named(taskName))
-}
-
-val cleanStagingDeploy = tasks.register("cleanStagingDeploy", Delete::class) {
-    delete(layout.buildDirectory.dir("staging-deploy"))
-}
-
-tasks.register("publishKonst") {
-    dependsOn(cleanStagingDeploy)
-    if (!myVersion.endsWith("-SNAPSHOT")) {
-        dependsOn(jDeploy)
-    } else {
-        val taskName = "publish" +
-                myId.replaceFirstChar { it.uppercaseChar() } +
-                "PublicationTo${mavenSnapshotName}Repository"
-        dependsOn(tasks.named(taskName))
-    }
-}
-
-dependencies {
-    implementation(libs.ksp)
-    kspTest(rootProject)
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-}
-
-tasks.test {
-    useJUnitPlatform()
 }
 
 kotlin {
+    sourceSets {
+        commonMain {
+
+        }
+        commonTest {
+            dependencies {
+                implementation(kotlin("test"))
+            }
+        }
+        jvmMain {
+            dependencies {
+                implementation(libs.ksp)
+            }
+        }
+    }
     jvmToolchain(8)
+    jvm {
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_1_8
+        }
+    }
+    js {
+        browser { }
+        nodejs { }
+    }
+
+    run { // Kotlin Native
+        macosX64()
+        macosArm64()
+        iosSimulatorArm64()
+        iosX64()
+        iosArm64()
+        // tier 2
+        linuxX64()
+        linuxArm64()
+        watchosSimulatorArm64()
+        watchosX64()
+        watchosArm32()
+        watchosArm64()
+        tvosSimulatorArm64()
+        tvosX64()
+        tvosArm64()
+        // tier 3
+        androidNativeArm32()
+        androidNativeArm64()
+        androidNativeX86()
+        androidNativeX64()
+        mingwX64()
+        watchosDeviceArm64()
+    }
+}
+
+tasks.named<Test>("jvmTest") {
+    useJUnitPlatform()
+}
+
+dependencies {
+    add("kspJvmTest", rootProject)
 }

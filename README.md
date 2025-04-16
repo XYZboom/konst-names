@@ -20,7 +20,7 @@ plugins {
 }
 
 dependencies {
-    compileOnly("io.github.xyzboom:konst-names:0.1.0")
+    implementation("io.github.xyzboom:konst-names:0.1.0")
     ksp("io.github.xyzboom:konst-names:0.1.0")
 }
 ```
