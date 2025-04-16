@@ -6,7 +6,7 @@ import java.io.Closeable
 import java.io.OutputStreamWriter
 import java.io.Writer
 
-class KonstSymbolProcessor(
+internal class KonstSymbolProcessor(
     private val codeGen: CodeGenerator,
     private val logger: KSPLogger,
 ): SymbolProcessor {

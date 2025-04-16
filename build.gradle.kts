@@ -12,7 +12,7 @@ plugins {
 
 val myGroup = "io.github.xyzboom"
 val myId = "konst-names"
-val myVersion = "0.1.1"
+val myVersion = "0.1.2-SNAPSHOT"
 group = myGroup
 version = myVersion
 
