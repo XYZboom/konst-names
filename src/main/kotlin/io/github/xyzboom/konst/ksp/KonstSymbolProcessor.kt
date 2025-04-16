@@ -60,7 +60,9 @@ class KonstSymbolProcessor(
                     val packageName = PackageName.of(node)
                     val writer = writerCache.getOrPut(packageName) {
                         newFile(containingFile, packageName) {
-                            +!"package ${packageName.value}"
+                            if (packageName.value.isNotEmpty()) {
+                                +!"package ${packageName.value}"
+                            }
                             +!""
                         }
                     }
