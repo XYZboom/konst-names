@@ -1,4 +1,4 @@
-# Konst Names
+# Konst Names ![Maven Central Version](https://img.shields.io/maven-central/v/io.github.xyzboom/konst-names)
 
 **Generate Compile-Time Constant Names for Kotlin Declarations**.
 
@@ -16,12 +16,12 @@
 
 ```kotlin
 plugins {
-    id("com.google.devtools.ksp") version "2.1.20-1.0.32"
+    id("com.google.devtools.ksp") version "2.1.20-2.0.0"
 }
 
 dependencies {
-    implementation("io.github.xyzboom:konst-names:0.1.2")
-    ksp("io.github.xyzboom:konst-names:0.1.2")
+    implementation("io.github.xyzboom:konst-names:0.1.3")
+    ksp("io.github.xyzboom:konst-names:0.1.3")
 }
 ```
 
