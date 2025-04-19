@@ -53,6 +53,15 @@ fun main() {
     println(MyClass_myFunc_sName)
 }
 ```
+To achieve better IDE support (Note that we are using **UNSTABLE** compiler features), the following methods can be used:
+```kotlin
+import io.github.xyzboom.konst.*
+
+class MyClass
+
+@Suppress("CONST_VAL_WITH_NON_CONST_INITIALIZER")
+const val aName = simpleName<MyClass>()
+```
 
 ### 3. Enable IDE Support
 
