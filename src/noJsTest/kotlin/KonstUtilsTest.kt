@@ -1,4 +1,4 @@
-package io.github.xyzboom.konst
+package io.github.xyzboom.konst.ksp
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

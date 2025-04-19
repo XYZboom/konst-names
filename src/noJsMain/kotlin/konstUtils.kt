@@ -1,5 +1,6 @@
 @file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
-package io.github.xyzboom.konst
+
+package io.github.xyzboom.konst.ksp
 
 @kotlin.internal.IntrinsicConstEvaluation
 @kotlin.internal.InlineOnly
