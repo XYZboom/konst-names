@@ -1,16 +1,13 @@
 import com.vanniktech.maven.publish.SonatypeHost
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.ksp)
-    alias(libs.plugins.dokka)
     alias(libs.plugins.vanniktech.maven.publish)
 }
 
 val myGroup = "io.github.xyzboom"
-val myId = "konst-names"
-val myVersion = "0.1.3"
+val myId = "konst-compiler-plugin"
+val myVersion = "0.2-SNAPSHOT"
 group = myGroup
 version = myVersion
 
@@ -18,8 +15,10 @@ repositories {
     mavenCentral()
 }
 
-val localJReleaserName = "LocalForJReleaser"
-val mavenSnapshotName = "MavenSnapshot"
+dependencies {
+    compileOnly(libs.kotlin.compiler)
+    testImplementation(kotlin("test"))
+}
 
 mavenPublishing {
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
@@ -56,16 +55,9 @@ mavenPublishing {
     }
 }
 
-tasks.named<Test>("test") {
+tasks.test {
     useJUnitPlatform()
 }
-
 kotlin {
     jvmToolchain(8)
-    compilerOptions {
-        jvmTarget = JvmTarget.JVM_1_8
-    }
-}
-
-dependencies {
 }

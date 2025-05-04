@@ -2,6 +2,7 @@ pluginManagement {
     repositories {
         gradlePluginPortal()
         mavenCentral()
+        mavenLocal()
     }
 }
 rootProject.name = "konst-names"
@@ -12,3 +13,5 @@ dependencyResolutionManagement {
         }
     }
 }
+include("gradle-plugin")
+include("compiler-plugin")
