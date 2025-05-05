@@ -2,6 +2,7 @@ package io.github.xyzboom.konst.fir
 
 import org.jetbrains.kotlin.fir.FirElement
 import org.jetbrains.kotlin.fir.expressions.FirGetClassCall
+import org.jetbrains.kotlin.fir.expressions.FirLiteralExpression
 import org.jetbrains.kotlin.fir.expressions.FirPropertyAccessExpression
 import org.jetbrains.kotlin.fir.expressions.FirResolvedQualifier
 import org.jetbrains.kotlin.fir.expressions.FirStatement
@@ -17,10 +18,12 @@ object FirKonstExpressionTransformer : FirTransformer<Nothing?>() {
         return element
     }
 
-    override fun transformPropertyAccessExpression(
-        propertyAccessExpression: FirPropertyAccessExpression,
-        data: Nothing?
-    ): FirStatement {
+    override fun transformLiteralExpression(literalExpression: FirLiteralExpression, data: Nothing?): FirStatement {
+        if (literalExpression !is FirKonstExpression) {
+            return super.transformLiteralExpression(literalExpression, data)
+        }
+        val propertyAccessExpression = literalExpression.originExpr as? FirPropertyAccessExpression
+            ?: return super.transformLiteralExpression(literalExpression, data)
         val symbol = propertyAccessExpression.calleeReference.resolved?.symbol as? FirPropertySymbol
             ?: return super.transformPropertyAccessExpression(propertyAccessExpression, data)
         val name = symbol.callableId.asSingleFqName().asString()
@@ -54,7 +57,6 @@ object FirKonstExpressionTransformer : FirTransformer<Nothing?>() {
             )
         }
 
-        return super.transformPropertyAccessExpression(propertyAccessExpression, data)
+        return super.transformLiteralExpression(literalExpression, data)
     }
-
 }
