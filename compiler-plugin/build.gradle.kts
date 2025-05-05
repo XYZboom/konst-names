@@ -1,13 +1,13 @@
 import com.vanniktech.maven.publish.SonatypeHost
 
 plugins {
-    alias(libs.plugins.kotlin.jvm)
+    kotlin("jvm")
     alias(libs.plugins.vanniktech.maven.publish)
 }
 
 val myGroup = "io.github.xyzboom"
 val myId = "konst-compiler-plugin"
-val myVersion = "0.2.0"
+val myVersion = "0.3.0"
 group = myGroup
 version = myVersion
 

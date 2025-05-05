@@ -2,31 +2,18 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import com.vanniktech.maven.publish.SonatypeHost
 
 plugins {
-    kotlin("jvm")
-    id("java-gradle-plugin")
+    kotlin("multiplatform")
     alias(libs.plugins.vanniktech.maven.publish)
 }
 
-group = "io.github.xyzboom"
-version = "0.3.0"
-val myGroup = "io.github.xyzboom.konst"
-val myId = "io.github.xyzboom.konst.gradle.plugin"
-// remember to change version in Kotlin class
-val myVersion = "0.3.0"
+val myGroup = "io.github.xyzboom"
+val myId = "konst-names-api"
+val myVersion = "0.3-SNAPSHOT"
+group = myGroup
+version = myVersion
 
 repositories {
     mavenCentral()
-}
-
-gradlePlugin {
-    plugins {
-        create("KonstPlugin") {
-            id = "io.github.xyzboom.konst"
-            displayName = "Konst compiler plugin"
-            description = displayName
-            implementationClass = "io.github.xyzboom.konst.gradle.plugin.KonstGradleSubplugin"
-        }
-    }
 }
 
 mavenPublishing {
@@ -64,15 +51,40 @@ mavenPublishing {
     }
 }
 
-dependencies {
-    compileOnly(libs.kotlin.gradle.plugin.api)
-    compileOnly(libs.kotlin.gradle.plugin)
-    testImplementation(kotlin("test"))
-}
-
 kotlin {
     jvmToolchain(8)
-    compilerOptions {
-        jvmTarget = JvmTarget.JVM_1_8
+    jvm {
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_1_8
+        }
+    }
+    js {
+        browser { }
+        nodejs { }
+    }
+
+    run { // Kotlin Native
+        macosX64()
+        macosArm64()
+        iosSimulatorArm64()
+        iosX64()
+        iosArm64()
+        // tier 2
+        linuxX64()
+        linuxArm64()
+        watchosSimulatorArm64()
+        watchosX64()
+        watchosArm32()
+        watchosArm64()
+        tvosSimulatorArm64()
+        tvosX64()
+        tvosArm64()
+        // tier 3
+        androidNativeArm32()
+        androidNativeArm64()
+        androidNativeX86()
+        androidNativeX64()
+        mingwX64()
+        watchosDeviceArm64()
     }
 }
