@@ -11,7 +11,8 @@ group = "io.github.xyzboom"
 version = "0.2.0"
 val myGroup = "io.github.xyzboom.konst"
 val myId = "io.github.xyzboom.konst.gradle.plugin"
-val myVersion = "0.2.0"
+// remember to change version in Kotlin class
+val myVersion = "0.2.1"
 
 repositories {
     mavenCentral()
@@ -37,7 +38,7 @@ mavenPublishing {
 
     pom {
         name.set(myId)
-        description.set("A KSP project for generating const names.")
+        description.set("A Kotlin compiler plugin for generating const names.")
         url.set("https://github.com/XYZboom/konst-names")
 
         licenses {
