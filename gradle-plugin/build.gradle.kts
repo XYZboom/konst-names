@@ -1,25 +1,32 @@
-import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import com.vanniktech.maven.publish.SonatypeHost
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.ksp)
-    alias(libs.plugins.dokka)
+    id("java-gradle-plugin")
     alias(libs.plugins.vanniktech.maven.publish)
 }
 
-val myGroup = "io.github.xyzboom"
-val myId = "konst-names"
+group = "io.github.xyzboom"
+version = "0.2.0"
+val myGroup = "io.github.xyzboom.konst"
+val myId = "io.github.xyzboom.konst.gradle.plugin"
 val myVersion = "0.2.0"
-group = myGroup
-version = myVersion
 
 repositories {
     mavenCentral()
 }
 
-val localJReleaserName = "LocalForJReleaser"
-val mavenSnapshotName = "MavenSnapshot"
+gradlePlugin {
+    plugins {
+        create("KonstPlugin") {
+            id = "io.github.xyzboom.konst"
+            displayName = "Konst compiler plugin"
+            description = displayName
+            implementationClass = "io.github.xyzboom.konst.gradle.plugin.KonstGradleSubplugin"
+        }
+    }
+}
 
 mavenPublishing {
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
@@ -56,8 +63,10 @@ mavenPublishing {
     }
 }
 
-tasks.named<Test>("test") {
-    useJUnitPlatform()
+dependencies {
+    compileOnly(libs.kotlin.gradle.plugin.api)
+    compileOnly(libs.kotlin.gradle.plugin)
+    testImplementation(kotlin("test"))
 }
 
 kotlin {
@@ -65,7 +74,4 @@ kotlin {
     compilerOptions {
         jvmTarget = JvmTarget.JVM_1_8
     }
-}
-
-dependencies {
 }
