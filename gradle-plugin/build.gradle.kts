@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import com.vanniktech.maven.publish.SonatypeHost
 
 plugins {
-    alias(libs.plugins.kotlin.jvm)
+    kotlin("jvm")
     id("java-gradle-plugin")
     alias(libs.plugins.vanniktech.maven.publish)
 }
