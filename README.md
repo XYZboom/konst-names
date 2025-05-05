@@ -1,68 +1,70 @@
-# Konst Names ![Maven Central Version](https://img.shields.io/maven-central/v/io.github.xyzboom/konst-names)
+# Konst Names ![Maven Central Version](https://img.shields.io/maven-central/v/io.github.xyzboom.konst/io.github.xyzboom.konst.gradle.plugin)
 
 **Generate Compile-Time Constant Names for Kotlin Declarations**.
 
 ## Key Features
 
-✨ **Zero Runtime Overhead** Generates constants at compile time via KSP, eliminating reflection.
+✨ **Zero Runtime Overhead** Generates constants at compile time via compiler plugin, eliminating reflection.
 
-💡 **IDE-Friendly** - Auto-generated code visible immediately with navigation support
-
-📦 **Full Symbol Coverage** - Supports classes, properties, functions, and objects
+📦 **Full Symbol Coverage** Supports classes, properties, functions, and objects (the newest version only supports classes)
 
 ## Quick Start
 
-### 1. Add Dependencies
+### 1. Add Dependencies and Setup Plugin
+
+Add Maven Central into `setting.gradle.kts`
+
+```kotlin
+pluginManagement {
+    repositories {
+        mavenCentral() // add this line, if you do not have `pluginManagement` block, add this whole block
+        gradlePluginPortal()
+    }
+}
+```
+
+Add dependencies into `build.gradle.kts`
 
 ```kotlin
 plugins {
-    id("com.google.devtools.ksp") version "2.1.20-2.0.0"
-}
-
-dependencies {
-    implementation("io.github.xyzboom:konst-names:0.1.3")
-    ksp("io.github.xyzboom:konst-names:0.1.3")
+    kotlin("jvm") version "2.1.20"
+    id("io.github.xyzboom.konst") version "0.3.0" // add this line
 }
 ```
 
-### 2. Apply Annotation
-
-Apply the annotation `@Konst` on the declarations that you want to use its const name.
+Setup plugin in `build.gradle.kts` using a `konst` block. If you are familiar with allopen plugin, this will be really easy.
 
 ```kotlin
-import io.github.xyzboom.konst.ksp.Konst
-
-@Konst
-class MyClass {
-    @Konst
-    val myProperty: String = "sample property"
-
-    @Konst
-    fun myFunc() {
-        println("called myFunc")
-    }
+konst {
+    annotation("org.example.YourAnnotation")
 }
+```
 
+### 2. Create and Apply Annotation
+
+Create and apply the annotation `@YourAnnotation` on the `const val` property.
+
+```kotlin
+package org.example
+
+annotation class YourAnnotation
+```
+```kotlin
+import org.example.YourAnnotation
+
+annotation class A(
+    val value: String
+)
+
+class B
+
+@YourAnnotation
+const val a = "B simpleName: ${B::class.simpleName}; A qualifiedName: ${A::class.qualifiedName}"
+
+@A(a)
 fun main() {
-    // qName suffix means qualified name, sName suffix means simple name
-    println(MyClass_qName)
-    println(MyClass_sName)
-    println(MyClass_myProperty_qName)
-    println(MyClass_myProperty_sName)
-    println(MyClass_myFunc_qName)
-    println(MyClass_myFunc_sName)
+    println(a)
 }
 ```
-To achieve better IDE support (Note that we are using **UNSTABLE** compiler features), the following methods can be used:
-```kotlin
-import io.github.xyzboom.konst.*
 
-class MyClass
-
-@Suppress("CONST_VAL_WITH_NON_CONST_INITIALIZER")
-const val aName = simpleName<MyClass>()
-```
-
-### 3. Enable IDE Support
-
-Run `gradle kspKotlin` (or `gradle kspTestKotlin` if you are using Konst in test source). The generated code is at `build/generated/ksp`.
+Your IDE may complain "[CONST_VAL_WITH_NON_CONST_INITIALIZER] Const 'val' initializer should be a constant value" at `const val a` line and "[ANNOTATION_ARGUMENT_MUST_BE_CONST] An annotation argument must be a compile-time constant" at `@A(a)`. But this code compiles with konst plugin on.
