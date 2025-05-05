@@ -29,7 +29,7 @@ mavenPublishing {
 
     pom {
         name.set(myId)
-        description.set("A KSP project for generating const names.")
+        description.set("A Kotlin compiler plugin for generating const names.")
         url.set("https://github.com/XYZboom/konst-names")
 
         licenses {

@@ -47,5 +47,5 @@ class KonstGradleSubplugin
 
     override fun getCompilerPluginId() = "io.github.xyzboom.konst"
     override fun getPluginArtifact(): SubpluginArtifact =
-        SubpluginArtifact(groupId = "io.github.xyzboom", artifactId = KONST_ARTIFACT_NAME, version = "0.2-SNAPSHOT")
+        SubpluginArtifact(groupId = "io.github.xyzboom", artifactId = KONST_ARTIFACT_NAME, version = "0.2.0")
 }
