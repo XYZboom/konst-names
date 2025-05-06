@@ -2,6 +2,8 @@
 
 **Generate Compile-Time Constant Names for Kotlin Declarations**.
 
+**THIS IS A TOY PROJECT NOW, DO NOT USE THIS IN PRODUCTION LEVEL PROJECT!**
+
 ## Key Features
 
 ✨ **Zero Runtime Overhead** Generates constants at compile time via compiler plugin, eliminating reflection.
