@@ -8,18 +8,14 @@ import org.jetbrains.kotlin.fir.declarations.FirDeclarationStatus
 import org.jetbrains.kotlin.fir.declarations.FirProperty
 import org.jetbrains.kotlin.fir.declarations.isJavaOrEnhancement
 import org.jetbrains.kotlin.fir.declarations.utils.isConst
-import org.jetbrains.kotlin.fir.expressions.FirPropertyAccessExpression
 import org.jetbrains.kotlin.fir.expressions.FirStatement
 import org.jetbrains.kotlin.fir.extensions.FirStatusTransformerExtension
-import org.jetbrains.kotlin.fir.symbols.impl.FirClassLikeSymbol
 import org.jetbrains.kotlin.fir.visitors.FirTransformer
-import org.jetbrains.kotlin.name.ClassId
-import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.types.ConstantValueKind
 
 class FirKonstStatusTransformerExtension(session: FirSession) : FirStatusTransformerExtension(session) {
     companion object {
-        val suppressClassId = ClassId(FqName("kotlin"), FqName("Suppress"), false)
+        object ShouldBeReplace
     }
 
     override fun needTransformStatus(declaration: FirDeclaration): Boolean {
@@ -29,38 +25,33 @@ class FirKonstStatusTransformerExtension(session: FirSession) : FirStatusTransfo
 
     override fun transformStatus(
         status: FirDeclarationStatus,
-        property: FirProperty,
-        containingClass: FirClassLikeSymbol<*>?,
-        isLocal: Boolean
+        declaration: FirDeclaration
     ): FirDeclarationStatus {
-        if (property.isConst) {
-//            addSuppressAnno(property)
-            property.transform<FirStatement, Nothing?>(object: FirTransformer<Nothing?>() {
-                override fun <E : FirElement> transformElement(
-                    element: E,
-                    data: Nothing?
-                ): E {
-                    element.transformChildren(this, data)
-                    return element
-                }
+        declaration.transform<FirElement, Nothing?>(object: FirTransformer<Nothing?>() {
+            override fun <E : FirElement> transformElement(
+                element: E,
+                data: Nothing?
+            ): E {
+                element.transformChildren(this, data)
+                return element
+            }
 
-                override fun transformPropertyAccessExpression(
-                    propertyAccessExpression: FirPropertyAccessExpression,
-                    data: Nothing?
-                ): FirStatement {
-                    return FirKonstExpression(
-                        propertyAccessExpression.source,
+            override fun transformProperty(property: FirProperty, data: Nothing?): FirStatement {
+                if (property.isConst) {
+                    val initializer = property.initializer ?: return property
+                    property.replaceInitializer(FirKonstExpression(
+                        initializer.source,
                         null,
                         MutableOrEmptyList(mutableListOf()),
                         ConstantValueKind.String,
+                        ShouldBeReplace,
                         null,
-                        null,
-                        propertyAccessExpression
-                    )
+                        initializer
+                    ))
                 }
-            }, null)
-        }
+                return property
+            }
+        }, null)
         return status
     }
-
 }

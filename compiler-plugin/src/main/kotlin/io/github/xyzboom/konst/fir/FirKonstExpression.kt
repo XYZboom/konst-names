@@ -5,8 +5,8 @@ import org.jetbrains.kotlin.fir.FirElement
 import org.jetbrains.kotlin.fir.MutableOrEmptyList
 import org.jetbrains.kotlin.fir.builder.toMutableOrEmpty
 import org.jetbrains.kotlin.fir.expressions.FirAnnotation
+import org.jetbrains.kotlin.fir.expressions.FirExpression
 import org.jetbrains.kotlin.fir.expressions.FirLiteralExpression
-import org.jetbrains.kotlin.fir.expressions.FirStatement
 import org.jetbrains.kotlin.fir.expressions.UnresolvedExpressionTypeAccess
 import org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirImplicitAwareBodyResolveTransformer
 import org.jetbrains.kotlin.fir.types.ConeKotlinType
@@ -27,22 +27,22 @@ internal class FirKonstExpression(
     /**
      * represents the origin `SomeClass::class.simpleName` expression.
      */
-    var originExpr: FirStatement
+    var originExpr: FirExpression
 ) : FirLiteralExpression() {
 
     override fun <E : FirElement, D> transform(transformer: FirTransformer<D>, data: D): E {
         val origin = originExpr
-        val new = originExpr.transform<FirStatement, D>(transformer, data)
+        val new = originExpr.transform<FirExpression, D>(transformer, data)
         if (origin !== new) {
             originExpr = new
         }
         val me = if (transformer is FirImplicitAwareBodyResolveTransformer) {
-            this.transform<FirLiteralExpression, Nothing?>(FirKonstExpressionTransformer, null)
+            originExpr.transform<FirExpression, Nothing?>(FirKonstExpressionTransformer, null)
         } else {
             this
         }
         @Suppress("UNCHECKED_CAST")
-        return transformer.transformLiteralExpression(me, data) as E
+        return me as E
     }
 
     override fun <R, D> acceptChildren(visitor: FirVisitor<R, D>, data: D) {
@@ -53,7 +53,7 @@ internal class FirKonstExpression(
     override fun <D> transformChildren(transformer: FirTransformer<D>, data: D): FirKonstExpression {
         transformAnnotations(transformer, data)
         val origin = originExpr
-        val new = originExpr.transform<FirStatement, D>(transformer, data)
+        val new = originExpr.transform<FirExpression, D>(transformer, data)
         if (origin !== new) {
             originExpr = new
         }

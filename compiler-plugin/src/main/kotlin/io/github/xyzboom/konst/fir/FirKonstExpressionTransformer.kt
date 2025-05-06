@@ -1,6 +1,7 @@
 package io.github.xyzboom.konst.fir
 
 import org.jetbrains.kotlin.fir.FirElement
+import org.jetbrains.kotlin.fir.expressions.FirCheckNotNullCall
 import org.jetbrains.kotlin.fir.expressions.FirGetClassCall
 import org.jetbrains.kotlin.fir.expressions.FirLiteralExpression
 import org.jetbrains.kotlin.fir.expressions.FirPropertyAccessExpression
@@ -15,15 +16,30 @@ import org.jetbrains.kotlin.types.ConstantValueKind
 
 object FirKonstExpressionTransformer : FirTransformer<Nothing?>() {
     override fun <E : FirElement> transformElement(element: E, data: Nothing?): E {
+        element.transformChildren(this, data)
         return element
     }
 
-    override fun transformLiteralExpression(literalExpression: FirLiteralExpression, data: Nothing?): FirStatement {
-        if (literalExpression !is FirKonstExpression) {
-            return super.transformLiteralExpression(literalExpression, data)
+    override fun transformCheckNotNullCall(checkNotNullCall: FirCheckNotNullCall, data: Nothing?): FirStatement {
+        checkNotNullCall.transformAnnotations(this, data)
+        checkNotNullCall.replaceArgumentList(
+            checkNotNullCall.argumentList.transform(this, data)
+        )
+        checkNotNullCall.transformCalleeReference(this, data)
+        if (checkNotNullCall.argumentList.arguments.size == 1) {
+            val arg = checkNotNullCall.argumentList.arguments.single()
+            if (arg is FirLiteralExpression) {
+                val value = arg.value ?: return checkNotNullCall
+                require(value !== FirKonstStatusTransformerExtension.Companion.ShouldBeReplace)
+                return arg
+            }
         }
-        val propertyAccessExpression = literalExpression.originExpr as? FirPropertyAccessExpression
-            ?: return super.transformLiteralExpression(literalExpression, data)
+        return checkNotNullCall
+    }
+
+    override fun transformPropertyAccessExpression(
+        propertyAccessExpression: FirPropertyAccessExpression, data: Nothing?
+    ): FirStatement {
         val symbol = propertyAccessExpression.calleeReference.resolved?.symbol as? FirPropertySymbol
             ?: return super.transformPropertyAccessExpression(propertyAccessExpression, data)
         val name = symbol.callableId.asSingleFqName().asString()
@@ -57,6 +73,6 @@ object FirKonstExpressionTransformer : FirTransformer<Nothing?>() {
             )
         }
 
-        return super.transformLiteralExpression(literalExpression, data)
+        return super.transformPropertyAccessExpression(propertyAccessExpression, data)
     }
 }

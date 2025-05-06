@@ -8,11 +8,11 @@ plugins {
 }
 
 group = "io.github.xyzboom"
-version = "0.3.0"
+version = "0.3.1"
 val myGroup = "io.github.xyzboom.konst"
 val myId = "io.github.xyzboom.konst.gradle.plugin"
 // remember to change version in Kotlin class
-val myVersion = "0.3.0"
+val myVersion = "0.3.1"
 
 repositories {
     mavenCentral()

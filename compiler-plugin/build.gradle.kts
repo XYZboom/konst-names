@@ -7,7 +7,7 @@ plugins {
 
 val myGroup = "io.github.xyzboom"
 val myId = "konst-compiler-plugin"
-val myVersion = "0.3.0"
+val myVersion = "0.3.1"
 group = myGroup
 version = myVersion
 
